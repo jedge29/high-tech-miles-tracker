@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mileage Pro: Permanent Memory</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --primary: #6366f1; --success: #22c55e; --danger: #ef4444; --text: #f8fafc; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; display: flex; justify-content: center; margin: 0; padding: 15px; }
+        .container { width: 100%; max-width: 450px; padding-bottom: 140px; }
+        .main-card { background: var(--card); border-radius: 24px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
+        .reminder-pill { background: rgba(99, 102, 241, 0.1); color: #818cf8; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 15px; text-align: center; }
+        .input-row { margin-bottom: 12px; }
+        label { display: block; font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 800; margin-bottom: 4px; }
+        input { width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 10px; color: white; font-size: 16px; box-sizing: border-box; outline: none; }
+        
+        /* SAVED PLACES SECTION */
+        .quick-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; margin-bottom: 15px; }
+        .tag { background: rgba(99, 102, 241, 0.2); border: 1px solid var(--primary); color: #c7d2fe; padding: 8px 14px; border-radius: 10px; font-size: 12px; cursor: pointer; }
+        .tag:active { background: var(--primary); }
+        
+        .add-loc-box { display: flex; gap: 5px; margin-top: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; }
+        .add-loc-box input { padding: 8px; font-size: 13px; }
+        .mini-btn { background: var(--primary); border: none; color: white; border-radius: 8px; padding: 0 15px; font-weight: bold; cursor: pointer; }
+
+        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        #startBtn { background: var(--primary); color: white; }
+        #stopBtn { background: var(--danger); color: white; display: none; }
+        .trip-item { background: #1e293b; border-radius: 15px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--success); font-size: 14px; }
+        .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; padding: 15px 20px; border-top: 2px solid var(--primary); text-align: center; }
+        .copy-all { background: var(--success); color: white; width: 100%; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="main-card">
+        <div id="reminder" class="reminder-pill">🏠 System Ready</div>
+        
+        <div class="input-row">
+            <label>Resident(s)</label>
+            <input type="text" id="resName" placeholder="Names">
+        </div>
+        
+        <div class="input-row">
+            <label>From</label>
+            <input type="text" id="fromLoc" value="House" placeholder="Origin">
+        </div>
+
+        <div class="input-row">
+            <label>Destination (Tap to Select)</label>
+            <div id="quickTags" class="quick-tags">
+                </div>
+            <input type="text" id="toLoc" placeholder="Or type new destination...">
+            
+            <div class="add-loc-box">
+                <input type="text" id="newLocName" placeholder="Save a new regular place...">
+                <button class="mini-btn" onclick="saveNewPlace()">ADD</button>
+            </div>
+        </div>
+
+        <button id="startBtn" class="btn" onclick="begin()">▶ START JOURNEY</button>
+        <button id="stopBtn" class="btn" onclick="finish()">■ ARRIVED (SAVE LEG)</button>
+    </div>
+
+    <div class="history-section" style="margin-top:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0;">Shift History</h3>
+            <button onclick="clearDay()" style="color:var(--danger); background:none; border:none; cursor:pointer; font-size:11px;">Clear Logs</button>
+        </div>
+        <div id="tripList"></div>
+    </div>
+</div>
+
+<div class="footer-bar" id="footer" style="display:none;">
+    <div style="font-size:18px; font-weight:bold; margin-bottom:10px;">Total: <span id="grandTotal">0.00</span> miles</div>
+    <button class="btn copy-all" onclick="copyFullReport()">COPY FULL REPORT 📋</button>
+</div>
+
+<script>
+    let startCoords = null, startTime = null, trips = [], totalMiles = 0;
+    
+    // Load saved places on start
+    let savedPlaces = JSON.parse(localStorage.getItem('myPlaces')) || ['Supermarket', 'GP Surgery', 'Park', 'House'];
+
+    function renderPlaces() {
+        const container = document.getElementById('quickTags');
+        container.innerHTML = "";
+        savedPlaces.forEach(place => {
+            const div = document.createElement('div');
+            div.className = 'tag';
+            div.innerText = place;
+            div.onclick = () => document.getElementById('toLoc').value = place;
+            container.appendChild(div);
+        });
+    }
+
+    function saveNewPlace() {
+        const val = document.getElementById('newLocName').value.trim();
+        if (val && !savedPlaces.includes(val)) {
+            savedPlaces.push(val);
+            localStorage.setItem('myPlaces', JSON.stringify(savedPlaces));
+            renderPlaces();
+            document.getElementById('newLocName').value = "";
+        }
+    }
+
+    function begin() {
+        if (!document.getElementById('resName').value) return alert("Enter names.");
+        document.getElementById('reminder').innerText = "🛰️ Connecting...";
+        navigator.geolocation.getCurrentPosition((pos) => {
+            startCoords = pos.coords;
+            startTime = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('startBtn').style.display = "none";
+            document.getElementById('stopBtn').style.display = "block";
+            document.getElementById('reminder').innerText = "🚗 TRACKING...";
+        }, (err) => alert("Allow GPS"), {enableHighAccuracy:true});
+    }
+
+    function finish() {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            const miles = calcDist(startCoords.latitude, startCoords.longitude, pos.coords.latitude, pos.coords.longitude);
+            const endTime = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            trips.push({
+                res: document.getElementById('resName').value,
+                route: document.getElementById('fromLoc').value + " to " + document.getElementById('toLoc').value,
+                miles: miles.toFixed(2),
+                time: startTime + " - " + endTime
+            });
+            totalMiles += miles;
+            updateUI();
+            
+            const oldTo = document.getElementById('toLoc').value;
+            const oldFrom = document.getElementById('fromLoc').value;
+            document.getElementById('fromLoc').value = oldTo;
+            document.getElementById('toLoc').value = oldFrom;
+            
+            document.getElementById('startBtn').style.display = "block";
+            document.getElementById('stopBtn').style.display = "none";
+            document.getElementById('reminder').innerText = "✅ Leg Saved!";
+        });
+    }
+
+    function calcDist(lat1, lon1, lat2, lon2) {
+        const R = 3958.8;
+        const dLat = (lat2-lat1)*Math.PI/180;
+        const dLon = (lon2-lon1)*Math.PI/180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function updateUI() {
+        const list = document.getElementById('tripList'); list.innerHTML = "";
+        trips.forEach(t => {
+            const item = document.createElement('div'); item.className = "trip-item";
+            item.innerHTML = `<strong>👤 ${t.res}</strong><br><small>📍 ${t.route}</small><br><b>${t.miles} miles</b> (${t.time})`;
+            list.prepend(item);
+        });
+        document.getElementById('grandTotal').innerText = totalMiles.toFixed(2);
+        document.getElementById('footer').style.display = "block";
+    }
+
+    function copyFullReport() {
+        let r = "--- DAILY SHIFT MILEAGE ---\n";
+        trips.forEach((t, i) => r += `\n[${i+1}] ${t.res}: ${t.route}\nDist: ${t.miles} miles | ${t.time}\n`);
+        r += `\nTOTAL: ${totalMiles.toFixed(2)} miles`;
+        navigator.clipboard.writeText(r);
+        alert("Report Copied!");
+    }
+
+    function clearDay() { if(confirm("Clear today's logs?")) { trips=[]; totalMiles=0; updateUI(); document.getElementById('footer').style.display="none"; } }
+
+    renderPlaces(); // Run on load
+</script>
+</body>
+</html>
