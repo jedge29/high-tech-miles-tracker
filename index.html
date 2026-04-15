@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ShiftTrack Pro</title>
+    <title>Twyford Care Mileage Tracker</title>
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Twyford Tracker">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Twyford%20Care%20Mileage%20Tracker%22,%22short_name%22:%22Twyford%20Tracker%22,%22display%22:%22standalone%22,%22start_url%22:%22/%22}">
 
     <style>
         :root { --bg: #000000; --card: #161b22; --primary: #2f81f7; --success: #238636; --text: #c9d1d9; --accent: #79c0ff; --warning: #d29922; }
@@ -14,17 +17,23 @@
         #app { width: 100%; max-width: 420px; }
         #disclaimer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; display: flex; align-items: center; padding: 30px; box-sizing: border-box; }
         .card { background: var(--card); padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #30363d; }
-        h1 { text-align: center; color: var(--accent); font-size: 22px; margin: 10px 0; letter-spacing: 1px; }
+        h1 { text-align: center; color: var(--accent); font-size: 18px; margin: 10px 0; letter-spacing: 0.5px; text-transform: uppercase; }
         label { font-size: 11px; font-weight: bold; color: #8b949e; text-transform: uppercase; display: block; margin-bottom: 5px; }
         input { width: 100%; padding: 14px; margin: 8px 0; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; color: white; font-size: 16px; box-sizing: border-box; }
-        .preset-tag { display: inline-block; background: #21262d; padding: 6px 12px; border-radius: 20px; font-size: 12px; margin: 0 5px 8px 0; border: 1px solid #30363d; cursor: pointer; color: var(--accent); }
+        
+        .preset-tag { 
+            display: inline-flex; align-items: center; background: #21262d; 
+            padding: 6px 12px; border-radius: 20px; font-size: 12px; 
+            margin: 0 5px 8px 0; border: 1px solid #30363d; color: var(--accent); 
+        }
+        .del-btn { margin-left: 8px; color: #f85149; font-weight: bold; cursor: pointer; padding: 2px 5px; }
+        
         button { width: 100%; padding: 18px; border-radius: 12px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
         .btn-start { background: var(--primary); color: white; }
         .btn-stop { background: var(--success); color: white; }
         .btn-next { background: #8957e5; color: white; }
         .btn-home { background: #30363d; color: white; }
         .btn-copy { background: var(--warning); color: white; }
-        .reminder { text-align: center; color: #f85149; font-size: 12px; font-weight: bold; margin-bottom: 10px; }
         #log-output { background: #0d1117; padding: 15px; border-radius: 10px; font-family: monospace; color: #39d353; border: 1px solid #30363d; font-size: 13px; white-space: pre-wrap; }
         .hidden { display: none; }
     </style>
@@ -33,31 +42,37 @@
 
 <div id="disclaimer-overlay">
     <div>
-        <h2 style="color:white; font-size: 24px;">Shift Safety</h2>
-        <p style="color: #8b949e; line-height: 1.6;">Please track miles only for business use. Ensure you are stationary before updating the app.</p>
-        <button class="btn-start" onclick="document.getElementById('disclaimer-overlay').style.display='none'">I AGREE</button>
+        <h2 style="color:var(--accent); font-size: 24px;">Hi Guys! 👋</h2>
+        <p style="color: #c9d1d9; line-height: 1.6; font-size: 16px;">
+            I made this <b>Twyford Care Mileage Tracker</b> to make our life easier.
+            <br><br>
+            Just start a trip when we leave. If we have multiple stops, click <b>"Add Stop"</b> along the way.
+            <br><br>
+            At the end of your shift, click <b>"Copy Report"</b> and paste it into your message. Simple!
+        </p>
+        <button class="btn-start" onclick="document.getElementById('disclaimer-overlay').style.display='none'">START TRACKER</button>
     </div>
 </div>
 
 <div id="app">
-    <h1>SHIFTTRACK PRO</h1>
+    <h1>Twyford Care Mileage Tracker</h1>
 
     <div id="view-setup" class="card">
-        <label>Resident</label>
+        <label>Who are you supporting?</label>
         <div id="res-presets"></div>
-        <input type="text" id="input-res" placeholder="Resident Name">
+        <input type="text" id="input-res" placeholder="Staff or Resident Name">
         
-        <label>Destination</label>
+        <label>Where are we off to?</label>
         <div id="dest-presets"></div>
-        <input type="text" id="input-dest" placeholder="e.g. Pharmacy, Park, Shop">
+        <input type="text" id="input-dest" placeholder="Destination">
         
         <button class="btn-start" onclick="startTracking()">START TRIP</button>
     </div>
 
     <div id="view-active" class="card hidden">
-        <div class="reminder">⚠️ LIVE TRACKING...</div>
+        <div style="text-align:center; font-size:12px; color:var(--warning); margin-bottom:10px; font-weight:bold;">📍 TRACKING LIVE...</div>
         <div style="text-align:center; font-size:42px; font-weight:800; margin:10px 0; color:white;" id="live-miles">0.00 mi</div>
-        <button class="btn-stop" id="main-stop-btn" onclick="arrive()">I HAVE ARRIVED</button>
+        <button class="btn-stop" id="main-stop-btn" onclick="arrive()">I'VE ARRIVED</button>
         
         <div id="post-arrival-options" class="hidden">
             <button class="btn-next" onclick="prepareNextLeg()">➕ ADD ANOTHER STOP</button>
@@ -66,10 +81,10 @@
     </div>
 
     <div class="card">
-        <label>Shift History</label>
-        <div id="log-output">No data.</div>
-        <button class="btn-copy" onclick="copyLogs()">COPY FOR OFFICE</button>
-        <button style="background:transparent; color:#f85149; font-size:11px; text-decoration:underline; margin-top:10px;" onclick="resetAll()">Reset App</button>
+        <label>Today's Mileage Report</label>
+        <div id="log-output">No trips logged today.</div>
+        <button class="btn-copy" onclick="copyLogs()">COPY REPORT</button>
+        <button style="background:transparent; color:#f85149; font-size:11px; text-decoration:underline; margin-top:10px;" onclick="resetAll()">Clear Everything</button>
     </div>
 </div>
 
@@ -79,12 +94,30 @@
     let watchId, startPos, currentMiles = 0;
 
     function render() {
-        document.getElementById('res-presets').innerHTML = presets.res.slice(-5).map(r => `<span class="preset-tag" onclick="set('input-res','${r}')">${r}</span>`).join('');
-        document.getElementById('dest-presets').innerHTML = presets.dest.slice(-5).map(d => `<span class="preset-tag" onclick="set('input-dest','${d}')">${d}</span>`).join('');
-        let text = logs.length ? "--- SHIFT REPORT ---\n" : "No data.";
-        let total = 0; logs.forEach(l => { text += `${l.res}: ${l.dest} (${l.miles} mi)\n`; total += parseFloat(l.miles); });
-        if(logs.length) text += `\nTOTAL MILES: ${total.toFixed(2)}`;
+        const resDiv = document.getElementById('res-presets');
+        const destDiv = document.getElementById('dest-presets');
+        
+        resDiv.innerHTML = presets.res.map((r, i) => `
+            <span class="preset-tag" onclick="set('input-res','${r}')">${r} 
+                <span class="del-btn" onclick="deletePreset(event, 'res', ${i})">×</span>
+            </span>`).join('');
+            
+        destDiv.innerHTML = presets.dest.map((d, i) => `
+            <span class="preset-tag" onclick="set('input-dest','${d}')">${d} 
+                <span class="del-btn" onclick="deletePreset(event, 'dest', ${i})">×</span>
+            </span>`).join('');
+
+        let text = logs.length ? "--- TWYFORD CARE REPORT ---\n" : "No trips logged today.";
+        let total = 0; logs.forEach(l => { text += `• ${l.res}: ${l.dest} (${l.miles} mi)\n`; total += parseFloat(l.miles); });
+        if(logs.length) text += `\nTOTAL MILES FOR DAY: ${total.toFixed(2)}`;
         document.getElementById('log-output').innerText = text;
+    }
+
+    function deletePreset(e, type, index) {
+        e.stopPropagation();
+        presets[type].splice(index, 1);
+        localStorage.setItem('st_presets', JSON.stringify(presets));
+        render();
     }
 
     function set(id, v) { document.getElementById(id).value = v; }
@@ -100,7 +133,7 @@
     function startTracking() {
         const r = document.getElementById('input-res').value;
         const d = document.getElementById('input-dest').value;
-        if(!r || !d) return alert("Enter details!");
+        if(!r || !d) return alert("Please fill in both boxes!");
 
         if(!presets.res.includes(r)) presets.res.push(r);
         if(!presets.dest.includes(d)) presets.dest.push(d);
@@ -118,18 +151,13 @@
                 currentMiles = getDist(startPos, pos.coords);
                 document.getElementById('live-miles').innerText = currentMiles.toFixed(2) + " mi";
             }, null, {enableHighAccuracy:true});
-        }, () => alert("GPS Required!"));
+        }, () => alert("GPS is needed to track miles!"));
     }
 
     function arrive() {
         navigator.geolocation.clearWatch(watchId);
-        logs.push({ 
-            res: document.getElementById('input-res').value, 
-            dest: document.getElementById('input-dest').value, 
-            miles: currentMiles.toFixed(2) 
-        });
+        logs.push({ res: document.getElementById('input-res').value, dest: document.getElementById('input-dest').value, miles: currentMiles.toFixed(2) });
         localStorage.setItem('st_logs', JSON.stringify(logs));
-        
         document.getElementById('main-stop-btn').classList.add('hidden');
         document.getElementById('post-arrival-options').classList.remove('hidden');
         render();
@@ -139,7 +167,7 @@
         const nextStop = prompt("Where is the next stop?", "");
         if (nextStop) {
             document.getElementById('input-dest').value = nextStop;
-            startTracking(); // Start tracking immediately for the new destination
+            startTracking();
         }
     }
 
@@ -150,8 +178,13 @@
         render();
     }
 
-    function copyLogs() { navigator.clipboard.writeText(document.getElementById('log-output').innerText); alert("Report Copied!"); }
-    function resetAll() { if(confirm("Clear Everything?")) { localStorage.clear(); location.reload(); } }
+    function copyLogs() { 
+        const logContent = document.getElementById('log-output').innerText;
+        navigator.clipboard.writeText(logContent).then(() => {
+            alert("Report copied! Ready to paste into your message.");
+        }); 
+    }
+    function resetAll() { if(confirm("This clears all your trips. Start a new shift?")) { localStorage.removeItem('st_logs'); location.reload(); } }
     render();
 </script>
 </body>
