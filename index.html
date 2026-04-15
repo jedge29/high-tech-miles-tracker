@@ -31,7 +31,7 @@
             padding: 6px 12px; border-radius: 25px; font-size: 13px; 
             margin: 0 5px 8px 0; border: 1px solid var(--border); color: var(--primary); font-weight: 600; cursor: pointer; 
         }
-        .del-btn { margin-left: 8px; color: #ef4444; font-size: 18px; }
+        .del-btn { margin-left: 8px; color: #ef4444; font-size: 18px; font-weight: bold; }
         
         button { width: 100%; padding: 18px; border-radius: 14px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
         .btn-start { background: var(--primary); color: white; }
@@ -40,7 +40,7 @@
         .btn-home { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
         .btn-copy { background: var(--warning); color: white; }
 
-        #log-output { background: #f8fafc; padding: 15px; border-radius: 12px; font-family: monospace; border: 1px solid var(--border); font-size: 13px; white-space: pre-wrap; line-height: 1.5; }
+        #log-output { background: #f8fafc; padding: 15px; border-radius: 12px; font-family: monospace; border: 1px solid var(--border); font-size: 13px; white-space: pre-wrap; line-height: 1.5; margin-bottom: 10px; }
         .hidden { display: none; }
         .live-indicator { text-align: center; font-size: 11px; color: #ef4444; font-weight: 800; margin-bottom: 10px; animation: blink 1.5s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
@@ -86,15 +86,17 @@
         <label>Daily Report</label>
         <div id="log-output">No trips logged today.</div>
         <button class="btn-copy" onclick="copyLogs()">COPY REPORT</button>
-        <button style="background:transparent; color:#94a3b8; font-size:11px; text-decoration:underline;" onclick="resetAll()">Clear Shift Data</button>
+        <button style="background:transparent; color:#94a3b8; font-size:11px; text-decoration:underline; border:none; box-shadow:none; cursor:pointer;" onclick="resetAll()">Clear Shift Data</button>
     </div>
 </div>
 
 <script>
+    // Initialize Data
     let logs = JSON.parse(localStorage.getItem('st_logs')) || [];
     let presets = JSON.parse(localStorage.getItem('st_presets')) || { res: [], dest: [] };
     let watchId, startPos, currentMiles = 0;
 
+    // Core Display Function
     function render() {
         const resDiv = document.getElementById('res-presets');
         const destDiv = document.getElementById('dest-presets');
@@ -129,7 +131,7 @@
     function set(id, v) { document.getElementById(id).value = v; }
 
     function getDist(p1, p2) {
-        const R = 3958.8;
+        const R = 3958.8; // Miles
         const dLat = (p2.latitude - p1.latitude) * Math.PI / 180;
         const dLon = (p2.longitude - p1.longitude) * Math.PI / 180;
         const a = Math.sin(dLat/2)**2 + Math.cos(p1.latitude * Math.PI/180) * Math.cos(p2.latitude * Math.PI/180) * Math.sin(dLon/2)**2;
@@ -141,6 +143,7 @@
         const d = document.getElementById('input-dest').value;
         if(!r || !d) return alert("Please fill in both boxes!");
 
+        // Save Presets
         if(!presets.res.includes(r)) presets.res.push(r);
         if(!presets.dest.includes(d)) presets.dest.push(d);
         localStorage.setItem('st_presets', JSON.stringify(presets));
@@ -157,17 +160,20 @@
                 currentMiles = getDist(startPos, pos.coords);
                 document.getElementById('live-miles').innerText = currentMiles.toFixed(2) + " mi";
             }, null, {enableHighAccuracy:true});
+            render();
         }, () => alert("GPS is needed!"));
     }
 
     function arrive() {
         navigator.geolocation.clearWatch(watchId);
+        const milesLogged = currentMiles.toFixed(2);
         logs.push({ 
             res: document.getElementById('input-res').value, 
             dest: document.getElementById('input-dest').value, 
-            miles: currentMiles.toFixed(2) 
+            miles: milesLogged 
         });
         localStorage.setItem('st_logs', JSON.stringify(logs));
+        
         document.getElementById('main-stop-btn').classList.add('hidden');
         document.getElementById('post-arrival-options').classList.remove('hidden');
         render();
@@ -189,7 +195,8 @@
     }
 
     function copyLogs() { 
-        navigator.clipboard.writeText(document.getElementById('log-output').innerText);
+        const content = document.getElementById('log-output').innerText;
+        navigator.clipboard.writeText(content);
         alert("Report copied!");
     }
     
@@ -201,6 +208,7 @@
         } 
     }
     
+    // Initial Render on load
     render();
 </script>
 </body>
