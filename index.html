@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mileage Assistant: Pro Edition</title>
+    <title>Mileage Assistant: Full Control</title>
     <style>
         :root { --bg: #0f172a; --card: #1e293b; --primary: #6366f1; --success: #22c55e; --danger: #ef4444; --warning: #f59e0b; --text: #f8fafc; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; margin: 0; padding: 15px; }
         .container { width: 100%; max-width: 450px; padding-bottom: 140px; }
         .main-card { background: var(--card); border-radius: 24px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
         
-        .reminder-banner { background: var(--warning); color: black; padding: 15px; border-radius: 12px; font-weight: 800; font-size: 14px; margin-bottom: 15px; text-align: center; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        .reminder-banner { background: var(--warning); color: black; padding: 15px; border-radius: 12px; font-weight: 800; font-size: 14px; margin-bottom: 15px; text-align: center; }
 
         .input-row { margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 15px; }
         label { display: block; font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 800; margin-bottom: 8px; }
         input { width: 100%; background: transparent; border: none; color: white; font-size: 16px; outline: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
         
-        /* SCROLLABLE SAVED LISTS */
-        .chip-container { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0; margin-bottom: 5px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-        .chip { background: rgba(99, 102, 241, 0.2); border: 1px solid var(--primary); color: #c7d2fe; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+        /* CHIP SYSTEM WITH DELETE */
+        .chip-container { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0; margin-bottom: 5px; white-space: nowrap; }
+        .chip { position: relative; background: rgba(99, 102, 241, 0.2); border: 1px solid var(--primary); color: #c7d2fe; padding: 8px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         .chip.loc { border-color: var(--success); color: #86efac; background: rgba(34, 197, 94, 0.1); }
-        
+        .del-btn { color: var(--danger); font-weight: bold; font-size: 14px; padding: 0 4px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); }
+
         .add-row { display: flex; gap: 5px; margin-top: 8px; }
-        .add-row input { font-size: 12px; border: 1px solid rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 8px; }
-        .mini-btn { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 10px; cursor: pointer; }
+        .add-row input { font-size: 12px; border: 1px solid rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 8px; flex-grow: 1; }
+        .mini-btn { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 5px 15px; font-size: 10px; cursor: pointer; font-weight: bold; }
 
         .btn { width: 100%; padding: 20px; border-radius: 16px; border: none; font-size: 18px; font-weight: 800; cursor: pointer; margin-top: 10px; }
         #startBtn { background: var(--primary); color: white; }
@@ -39,35 +39,31 @@
 
 <div class="container">
     <div class="main-card">
-        <div id="banner" class="reminder-banner">👋 READY: SELECT RESIDENT</div>
+        <div id="banner" class="reminder-banner">🏠 SYSTEM READY</div>
         
         <div class="input-row">
             <label>Resident(s)</label>
             <div id="resList" class="chip-container"></div>
             <input type="text" id="resName" placeholder="Select or type name...">
             <div class="add-row">
-                <input type="text" id="newResInput" placeholder="Save New Resident (Initials only for privacy)">
-                <button class="mini-btn" onclick="saveData('res')">SAVE</button>
+                <input type="text" id="newResInput" placeholder="New Resident Name">
+                <button class="mini-btn" onclick="saveData('res')">ADD</button>
             </div>
         </div>
         
         <div class="input-row">
-            <label>From</label>
-            <input type="text" id="fromLoc" value="House">
-        </div>
-
-        <div class="input-row">
-            <label>To (Destination)</label>
+            <label>Destination</label>
             <div id="locList" class="chip-container"></div>
             <input type="text" id="toLoc" placeholder="Where to?">
             <div class="add-row">
-                <input type="text" id="newLocInput" placeholder="Save New Location">
-                <button class="mini-btn" onclick="saveData('loc')">SAVE</button>
+                <input type="text" id="newLocInput" placeholder="New Regular Place">
+                <button class="mini-btn" onclick="saveData('loc')">ADD</button>
             </div>
+            <input type="hidden" id="fromLoc" value="House">
         </div>
 
         <button id="startBtn" class="btn" onclick="begin()">▶ START JOURNEY</button>
-        <button id="stopBtn" class="btn" onclick="finish()">■ ARRIVED (STOP LOG)</button>
+        <button id="stopBtn" class="btn" onclick="finish()">■ ARRIVED (STOP TRACKING)</button>
         <button id="returnBtn" class="btn" onclick="prepareReturn()">🔄 START RETURN TRIP</button>
     </div>
 
@@ -76,33 +72,34 @@
 
 <div class="footer">
     <button class="btn" style="background:var(--success); color:white; margin:0; padding:12px;" onclick="copyFullReport()">COPY ALL LOGS 📋</button>
-    <div style="font-size: 11px; margin-top: 8px; color: #64748b;">All data saved locally on this device only.</div>
 </div>
 
 <script>
     let startCoords = null, startTime = null, trips = [], totalMiles = 0;
     
-    // Load from LocalStorage
     let savedRes = JSON.parse(localStorage.getItem('myResidents')) || [];
-    let savedLocs = JSON.parse(localStorage.getItem('myPlaces')) || ['Supermarket', 'GP Surgery', 'Park', 'House'];
+    let savedLocs = JSON.parse(localStorage.getItem('myPlaces')) || ['Supermarket', 'GP Surgery', 'House'];
 
     function renderChips() {
         const rList = document.getElementById('resList');
         rList.innerHTML = "";
-        savedRes.forEach(r => {
-            const c = document.createElement('div'); c.className = 'chip'; c.innerText = r;
-            c.onclick = () => { document.getElementById('resName').value = r; alertRemind("Resident selected: " + r); };
+        savedRes.forEach((r, index) => {
+            const c = document.createElement('div'); c.className = 'chip';
+            c.innerHTML = `<span onclick="selectRes('${r}')">${r}</span> <span class="del-btn" onclick="deleteData('res', ${index})">×</span>`;
             rList.appendChild(c);
         });
 
         const lList = document.getElementById('locList');
         lList.innerHTML = "";
-        savedLocs.forEach(l => {
-            const c = document.createElement('div'); c.className = 'chip loc'; c.innerText = l;
-            c.onclick = () => { document.getElementById('toLoc').value = l; alertRemind("Destination set: " + l); };
+        savedLocs.forEach((l, index) => {
+            const c = document.createElement('div'); c.className = 'chip loc';
+            c.innerHTML = `<span onclick="selectLoc('${l}')">${l}</span> <span class="del-btn" onclick="deleteData('loc', ${index})">×</span>`;
             lList.appendChild(c);
         });
     }
+
+    function selectRes(val) { document.getElementById('resName').value = val; alertRemind("Resident: " + val); }
+    function selectLoc(val) { document.getElementById('toLoc').value = val; alertRemind("Target: " + val); }
 
     function saveData(type) {
         if(type === 'res') {
@@ -111,6 +108,18 @@
         } else {
             const val = document.getElementById('newLocInput').value.trim();
             if(val) { savedLocs.push(val); localStorage.setItem('myPlaces', JSON.stringify(savedLocs)); document.getElementById('newLocInput').value = ""; }
+        }
+        renderChips();
+    }
+
+    function deleteData(type, index) {
+        if(!confirm("Remove this from your list?")) return;
+        if(type === 'res') {
+            savedRes.splice(index, 1);
+            localStorage.setItem('myResidents', JSON.stringify(savedRes));
+        } else {
+            savedLocs.splice(index, 1);
+            localStorage.setItem('myPlaces', JSON.stringify(savedLocs));
         }
         renderChips();
     }
@@ -125,15 +134,14 @@
 
     function begin() {
         if (!document.getElementById('resName').value || !document.getElementById('toLoc').value) {
-            speak("Please select a resident and destination.");
-            return;
+            speak("Select name and destination."); return;
         }
         navigator.geolocation.getCurrentPosition((pos) => {
             startCoords = pos.coords;
             startTime = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             document.getElementById('startBtn').style.display = "none";
             document.getElementById('stopBtn').style.display = "block";
-            alertRemind("🚨 DRIVING: TRACKING ACTIVE", "#ef4444");
+            alertRemind("🚨 DRIVING...", "#ef4444");
             speak("Journey started.");
         }, (err) => alert("GPS Error"), {enableHighAccuracy:true});
     }
@@ -143,29 +151,26 @@
             const miles = calcDist(startCoords.latitude, startCoords.longitude, pos.coords.latitude, pos.coords.longitude);
             trips.push({
                 res: document.getElementById('resName').value,
-                desc: "Outward to " + document.getElementById('toLoc').value,
+                desc: "To " + document.getElementById('toLoc').value,
                 miles: miles.toFixed(2),
                 time: startTime + " - " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
             });
-            totalMiles += miles.toFixed(2);
+            totalMiles += parseFloat(miles);
             updateUI();
             document.getElementById('stopBtn').style.display = "none";
             document.getElementById('returnBtn').style.display = "block";
             alertRemind("⌛ ACTIVITY IN PROGRESS", "#22c55e");
-            speak("Arrival logged. I will remind you to start the return trip later.");
+            speak("Arrived. Don't forget the return trip later.");
         });
     }
 
     function prepareReturn() {
         const oldTo = document.getElementById('toLoc').value;
-        const oldFrom = document.getElementById('fromLoc').value;
-        document.getElementById('fromLoc').value = oldTo;
-        document.getElementById('toLoc').value = oldFrom;
+        document.getElementById('toLoc').value = "House";
         document.getElementById('returnBtn').style.display = "none";
         document.getElementById('startBtn').style.display = "block";
         document.getElementById('startBtn').innerText = "▶ START RETURN JOURNEY";
-        alertRemind("🔄 READY FOR RETURN", "#6366f1");
-        speak("Ready for the return leg. Tap start when you begin driving.");
+        alertRemind("🔄 READY TO GO HOUSE", "#6366f1");
     }
 
     function calcDist(lat1, lon1, lat2, lon2) {
@@ -189,7 +194,7 @@
         let r = "SHIFT LOG:\n";
         trips.forEach(t => r += `${t.res}: ${t.desc} (${t.miles} mi)\n`);
         navigator.clipboard.writeText(r);
-        alert("Report Copied to clipboard!");
+        alert("Report Copied!");
     }
 
     renderChips();
