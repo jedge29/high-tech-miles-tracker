@@ -5,57 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>ShiftTrack Pro</title>
+    <title>ShiftTrack Private</title>
     
     <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22ShiftTrack%22,%22short_name%22:%22ShiftTrack%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#0f172a%22,%22theme_color%22:%22#6366f1%22}">
 
     <style>
         :root { --bg: #0f172a; --card: #1e293b; --primary: #6366f1; --success: #22c55e; --danger: #ef4444; --warning: #f59e0b; --text: #f8fafc; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; padding-bottom: 50px; -webkit-user-select: none; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 15px; padding-bottom: 60px; -webkit-user-select: none; }
         
-        /* ENTRY GATE OVERLAY */
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .announcement { background: #1e293b; padding: 30px; border-radius: 25px; border: 3px solid var(--danger); text-align: center; max-width: 400px; }
+        .announcement { background: #1e293b; padding: 30px; border-radius: 25px; border: 3px solid var(--primary); text-align: center; max-width: 400px; }
         
-        /* MAIN INTERFACE */
         .card { background: var(--card); border-radius: 25px; padding: 25px; text-align: center; border: 3px solid var(--primary); margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .instruction { font-size: 18px; font-weight: bold; display: block; margin-bottom: 10px; }
-        .btn { width: 100%; padding: 22px; border-radius: 15px; border: none; font-size: 18px; font-weight: bold; color: white; cursor: pointer; transition: 0.2s; -webkit-appearance: none; }
-        .btn:active { transform: scale(0.98); opacity: 0.9; }
+        .btn { width: 100%; padding: 22px; border-radius: 15px; border: none; font-size: 18px; font-weight: bold; color: white; cursor: pointer; -webkit-appearance: none; }
         
-        /* SELECTION CHIPS */
         .chip-box { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; margin-bottom: 10px; scrollbar-width: none; }
-        .chip-box::-webkit-scrollbar { display: none; }
         .chip { background: #334155; padding: 10px 18px; border-radius: 50px; white-space: nowrap; font-size: 14px; border: 2px solid transparent; display: flex; align-items: center; }
         .chip.active { background: var(--primary); border-color: white; font-weight: bold; }
-        .del-x { margin-left: 10px; color: var(--danger); font-weight: bold; font-size: 18px; cursor: pointer; }
+        .del-x { margin-left: 10px; color: var(--danger); font-weight: bold; font-size: 18px; }
 
-        /* REPORTING AREA */
         .report-area { background: #161e2e; padding: 20px; border-radius: 20px; border: 1px solid #334155; margin-bottom: 30px; }
         .res-block { margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 15px; text-align: left; }
         .grand-total { font-size: 24px; font-weight: 900; color: var(--success); text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #334155; }
 
-        /* SETTINGS SECTION */
-        .settings { padding: 20px; border-radius: 20px; background: rgba(0,0,0,0.2); border: 1px dashed #475569; margin-bottom: 20px; }
+        .settings { padding: 20px; border-radius: 20px; background: rgba(0,0,0,0.2); border: 1px dashed #475569; }
         .admin-input { background: #0f172a; border: 1px solid #475569; color: white; padding: 12px; border-radius: 10px; width: calc(100% - 100px); margin-bottom: 10px; }
-        .add-btn { padding: 12px; width: 80px; border-radius: 10px; border: none; background: var(--primary); color: white; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="overlay">
     <div class="announcement">
-        <h1 style="color:var(--danger); margin-top:0;">PRIVATE APP</h1>
-        <p>This app stores all data <b>locally on your phone</b>. Privacy is 100% yours.</p>
-        <p style="font-size: 14px; color: #94a3b8;">Enable notifications on the next screen to keep the tracker active while your phone is locked.</p>
-        <button class="btn" style="background: var(--success);" onclick="appInit()">I UNDERSTAND & START</button>
+        <h1 style="color:var(--primary); margin-top:0;">PRIVATE TOOL</h1>
+        <p>This is your personal logbook. Data is stored <b>only on your phone</b>. Management has no access to your logs.</p>
+        <button class="btn" style="background: var(--success);" onclick="appStart()">OPEN APP</button>
     </div>
 </div>
 
 <div class="card" id="mainCard">
-    <span id="instruction" class="instruction">1. Setup Journey</span>
+    <span id="instruction" style="font-size: 18px; font-weight: bold; display: block; margin-bottom: 10px;">1. Setup Journey</span>
     <div id="setupArea">
-        <p style="font-size: 11px; color: #94a3b8; margin: 0 0 5px 0;">SELECT RESIDENT(S) & DESTINATION</p>
         <div class="chip-box" id="resBox"></div>
         <div class="chip-box" id="locBox"></div>
     </div>
@@ -63,21 +52,21 @@
 </div>
 
 <div class="report-area">
-    <h2 style="margin:0 0 15px 0; font-size: 18px; display: flex; justify-content: space-between;">
-        <span>Today's Shift Log</span>
-        <span style="font-size: 12px; color: var(--primary);" onclick="resetEverything()">Clear Day</span>
-    </h2>
-    <div id="masterLogBody">Waiting for first trip...</div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h2 style="margin:0; font-size: 18px;">Daily Shift Log</h2>
+        <button onclick="clearDay()" style="background:none; border:none; color:var(--danger); font-size:12px;">Clear All</button>
+    </div>
+    <div id="masterLogBody">No trips logged yet.</div>
     <div class="grand-total" id="grandTotal">Total: 0.00 mi</div>
-    <button onclick="copyMasterReport()" class="btn" style="background:var(--success); margin-top:20px;">COPY FULL REPORT 📋</button>
+    <button onclick="copyReport()" class="btn" style="background:var(--success); margin-top:20px;">COPY REPORT 📋</button>
 </div>
 
 <div class="settings">
-    <h4 style="margin:0 0 10px 0;">Manage App</h4>
-    <input type="text" id="addInput" class="admin-input" placeholder="Name or Place...">
+    <h4 style="margin:0 0 10px 0;">Add Names / Places</h4>
+    <input type="text" id="addInput" class="admin-input" placeholder="Enter name...">
     <div style="display:flex; gap:5px;">
-        <button class="add-btn" onclick="addNew('res')">+ Resident</button>
-        <button class="add-btn" style="background:var(--success)" onclick="addNew('loc')">+ Place</button>
+        <button onclick="addItem('res')" style="flex:1; padding:12px; border:none; background:var(--primary); color:white; border-radius:10px;">+ Person</button>
+        <button onclick="addItem('loc')" style="flex:1; padding:12px; border:none; background:var(--success); color:white; border-radius:10px;">+ Place</button>
     </div>
 </div>
 
@@ -85,18 +74,17 @@
     let step = 0; let activeRes = []; let activeDest = ""; let startPos = null;
     let shiftData = {}; let totalCarMiles = 0;
 
-    // Load saved settings
-    let resList = JSON.parse(localStorage.getItem('resList')) || ["Resident 1"];
-    let locList = JSON.parse(localStorage.getItem('locList')) || ["Supermarket", "GP", "House"];
+    let resList = JSON.parse(localStorage.getItem('resList')) || ["Staff Member"];
+    let locList = JSON.parse(localStorage.getItem('locList')) || ["Home", "Shop"];
 
-    function appInit() {
+    function appStart() {
         document.getElementById('overlay').style.display = 'none';
         if ('Notification' in window) Notification.requestPermission();
     }
 
     function sendNotif(title, body) {
         if ('Notification' in window && Notification.permission === "granted") {
-            new Notification(title, { body, tag: "shifttrack", silent: false });
+            new Notification(title, { body, tag: "shift-track" });
         }
     }
 
@@ -105,46 +93,43 @@
         const card = document.getElementById('mainCard');
         const instr = document.getElementById('instruction');
 
-        if (step === 0) { // STAGE: STARTING
-            if (activeRes.length === 0 || !activeDest) return alert("Please select resident(s) and a destination.");
+        if (step === 0) {
+            if (activeRes.length === 0 || !activeDest) return alert("Select resident(s) and a destination.");
             navigator.geolocation.getCurrentPosition(p => {
                 startPos = p.coords; step = 1;
                 document.getElementById('setupArea').style.display = "none";
                 card.style.borderColor = "var(--danger)";
                 instr.innerText = "Driving to " + activeDest;
                 btn.innerText = "■ ARRIVED"; btn.style.background = "var(--danger)";
-                sendNotif("Tracking Active", "Locked & Loaded. Tap ARRIVED when you park.");
-            }, (err) => alert("Please enable GPS/Location access."), {enableHighAccuracy: true});
-        } 
-        else if (step === 1) { // STAGE: ARRIVED OUTWARD
+                sendNotif("Journey Active", "Don't forget to tap ARRIVED when you park.");
+            });
+        } else if (step === 1) {
             navigator.geolocation.getCurrentPosition(p => {
                 const miles = calcDist(startPos.latitude, startPos.longitude, p.coords.latitude, p.coords.longitude);
-                logTrip(activeRes, "Outward to " + activeDest, miles);
+                logTrip(activeRes, "To " + activeDest, miles);
                 step = 2; card.style.borderColor = "var(--success)";
                 instr.innerText = "At " + activeDest;
-                btn.innerText = "🔄 START RETURN JOURNEY"; btn.style.background = "var(--success)";
-                sendNotif("Arrived at " + activeDest, "Mileage saved to shift log.");
+                btn.innerText = "🔄 START RETURN"; btn.style.background = "var(--success)";
+                sendNotif("Arrived", "Mileage saved. Tap app when ready to return.");
             });
-        }
-        else if (step === 2) { // STAGE: STARTING RETURN
+        } else if (step === 2) {
             navigator.geolocation.getCurrentPosition(p => {
                 startPos = p.coords; step = 3;
                 card.style.borderColor = "var(--warning)";
-                instr.innerText = "Heading back to House";
-                btn.innerText = "■ ARRIVED AT HOUSE"; btn.style.background = "var(--warning)";
-                sendNotif("Returning Home", "Tap ARRIVED AT HOUSE once parked.");
+                instr.innerText = "Returning to Base";
+                btn.innerText = "■ ARRIVED AT BASE"; btn.style.background = "var(--warning)";
+                sendNotif("Return Trip", "Heading back. Tap ARRIVED AT BASE when back.");
             });
-        }
-        else if (step === 3) { // STAGE: FINISHED
+        } else if (step === 3) {
             navigator.geolocation.getCurrentPosition(p => {
                 const miles = calcDist(startPos.latitude, startPos.longitude, p.coords.latitude, p.coords.longitude);
                 logTrip(activeRes, "Return Leg", miles);
-                step = 0; activeRes = []; activeDest = ""; // Reset for next trip
+                step = 0; activeRes = []; activeDest = "";
                 document.getElementById('setupArea').style.display = "block";
                 card.style.borderColor = "var(--primary)";
-                instr.innerText = "1. Setup New Trip";
+                instr.innerText = "1. Setup Journey";
                 btn.innerText = "START JOURNEY"; btn.style.background = "var(--primary)";
-                sendNotif("Trip Complete", "All data added to Master Log.");
+                sendNotif("Trip Complete", "Daily log updated.");
                 render();
             });
         }
@@ -158,36 +143,32 @@
             shiftData[r].total += miles;
         });
         totalCarMiles += miles;
-        updateLogView();
+        updateUI();
     }
 
-    function updateLogView() {
+    function updateUI() {
         const body = document.getElementById('masterLogBody');
         body.innerHTML = "";
         for (let name in shiftData) {
-            body.innerHTML += `<div class="res-block">
-                <div style="color:var(--primary); font-weight:bold; font-size:16px;">👤 ${name}</div>
-                ${shiftData[name].trips.map(t => `<div style="font-size:12px; margin-left:5px;">• ${t.label}: ${t.miles} mi</div>`).join('')}
-                <div style="font-size:13px; font-weight:bold; color:var(--success); margin-top:4px;">Subtotal: ${shiftData[name].total.toFixed(2)} mi</div>
-            </div>`;
+            body.innerHTML += `<div class="res-block"><b>${name}</b>
+                ${shiftData[name].trips.map(t => `<div style="font-size:12px;">• ${t.label}: ${t.miles} mi</div>`).join('')}
+                <div style="font-size:12px; font-weight:bold; color:var(--success);">Subtotal: ${shiftData[name].total.toFixed(2)} mi</div></div>`;
         }
-        document.getElementById('grandTotal').innerText = `Total Shift: ${totalCarMiles.toFixed(2)} mi`;
+        document.getElementById('grandTotal').innerText = `Total: ${totalCarMiles.toFixed(2)} mi`;
     }
 
     function calcDist(lat1, lon1, lat2, lon2) {
-        const R = 3958.8; // Earth radius in miles
-        const dLat = (lat2-lat1)*Math.PI/180; const dLon = (lon2-lon1)*Math.PI/180;
+        const R = 3958.8; const dLat = (lat2-lat1)*Math.PI/180; const dLon = (lon2-lon1)*Math.PI/180;
         const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    function addNew(type) {
+    function addItem(type) {
         let val = document.getElementById('addInput').value.trim();
         if(!val) return;
         if(type === 'res') { resList.push(val); localStorage.setItem('resList', JSON.stringify(resList)); }
         else { locList.push(val); localStorage.setItem('locList', JSON.stringify(locList)); }
-        document.getElementById('addInput').value = "";
-        render();
+        document.getElementById('addInput').value = ""; render();
     }
 
     function delItem(type, i) {
@@ -206,24 +187,19 @@
         const lb = document.getElementById('locBox'); lb.innerHTML = "";
         locList.forEach((l, i) => {
             const c = document.createElement('div'); c.className = (activeDest === l) ? 'chip active' : 'chip';
-            c.innerHTML = `<span onclick="setDest('${l}')">${l}</span><span class="del-x" onclick="delItem('loc', ${i})">×</span>`;
+            c.innerHTML = `<span onclick="activeDest='${l}';render()">${l}</span><span class="del-x" onclick="delItem('loc', ${i})">×</span>`;
             lb.appendChild(c);
         });
     }
 
     function toggleRes(n) { if(activeRes.includes(n)) activeRes = activeRes.filter(x=>x!==n); else activeRes.push(n); render(); }
-    function setDest(l) { activeDest = l; render(); }
-    function resetEverything() { if(confirm("Clear today's logs?")) { shiftData = {}; totalCarMiles = 0; updateLogView(); } }
-
-    function copyMasterReport() {
-        let r = `--- SHIFT REPORT (${new Date().toLocaleDateString()}) ---\n\n`;
-        for (let name in shiftData) {
-            r += `👤 RESIDENT: ${name}\n`;
-            shiftData[name].trips.forEach(t => r += `  - ${t.label}: ${t.miles} mi\n`);
-            r += `  Subtotal: ${shiftData[name].total.toFixed(2)} mi\n\n`;
-        }
-        r += `--------------------------\nTOTAL ACTUAL MILES: ${totalCarMiles.toFixed(2)} mi`;
-        navigator.clipboard.writeText(r); alert("Full Day Report Copied!");
+    function clearDay() { if(confirm("Wipe today's logs?")) { shiftData = {}; totalCarMiles = 0; updateUI(); } }
+    
+    function copyReport() {
+        let r = `--- SHIFT MILEAGE ---\n`;
+        for (let n in shiftData) { r += `${n}: ${shiftData[n].total.toFixed(2)}mi\n`; }
+        r += `GRAND TOTAL: ${totalCarMiles.toFixed(2)}mi`;
+        navigator.clipboard.writeText(r); alert("Copied to clipboard!");
     }
 
     render();
