@@ -1,59 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ShiftTrack Pro</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="data:application/manifest+json,{%22display%22:%22standalone%22,%22start_url%22:%22/%22}">
+
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #6366f1;
+            --success: #10b981;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 18px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input:focus { border-color: var(--primary); }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            transition: transform 0.1s, opacity 0.1s;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        button:active { transform: scale(0.98); opacity: 0.9; }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-outline { background: #334155; color: white; }
+        .btn-copy { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; margin-top: 10px;}
+
+        .status-badge {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #log-entries {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #10b981;
+            border: 1px solid #334155;
+            min-height: 60px;
+        }
+
+        .clear-btn {
+            background: transparent;
+            color: #ef4444;
+            font-size: 13px;
+            text-decoration: none;
+            margin-top: 10px;
+            font-weight: 400;
+        }
+    </style>
+</head>
 <body>
-    <div id="app">
-        <h1>ShiftTrack Pro</h1>
+
+<div id="app">
+    <div class="header">
+        <h1>SHIFTTRACK PRO</h1>
+    </div>
+    
+    <div id="setup-section" class="card">
+        <label>Who are you supporting?</label>
+        <input type="text" id="residentName" placeholder="Resident Name">
+        <label>Where are we going?</label>
+        <input type="text" id="destination" placeholder="Initial Destination">
+        <button class="btn-primary" onclick="startJourney()">START JOURNEY</button>
+    </div>
+
+    <div id="active-trip" class="card" style="display:none;">
+        <div class="status-badge" id="trip-status">📍 Tracking Journey...</div>
         
-        <div id="setup-section">
-            <input type="text" id="residentName" placeholder="Resident Name">
-            <input type="text" id="destination" placeholder="Destination (e.g. Tesco, Park)">
-            <button onclick="startJourney()" id="startBtn">START JOURNEY</button>
-        </div>
-
-        <div id="active-trip" style="display:none;">
-            <h2 id="trip-status">Driving to Destination...</h2>
-            <button onclick="arriveAtStop()" id="arriveBtn" class="stop-btn">ARRIVED</button>
-            <button onclick="startNextLeg()" id="nextBtn" style="display:none;">START NEXT LEG</button>
-            <button onclick="returnToBase()" id="returnBtn" style="display:none;">HEAD HOME / BASE</button>
-        </div>
-
-        <div id="report-section">
-            <h3>Shift Summary</h3>
-            <div id="log-entries"></div>
-            <button onclick="copyReport()" class="copy-btn">COPY REPORT</button>
-            <button onclick="clearLogs()" class="clear-btn">Clear All</button>
+        <button id="arriveBtn" class="btn-success" onclick="arriveAtStop()">I HAVE ARRIVED</button>
+        
+        <div id="post-arrival-actions" style="display:none;">
+            <button class="btn-primary" onclick="startNextLeg()">➕ ADD ANOTHER STOP</button>
+            <button class="btn-outline" onclick="returnToBase()">🏠 FINISH & HEAD HOME</button>
         </div>
     </div>
 
-    <script>
-        let journeyData = JSON.parse(localStorage.getItem('miles')) || [];
+    <div class="card">
+        <label>Shift Activity Log</label>
+        <div id="log-entries">No logs yet today.</div>
+        <button class="btn-copy" onclick="copyReport()">COPY FULL REPORT</button>
+        <div style="text-align: center;">
+            <button class="clear-btn" onclick="clearLogs()">Reset App for New Shift</button>
+        </div>
+    </div>
+</div>
 
-        function startJourney() {
-            const res = document.getElementById('residentName').value;
-            const dest = document.getElementById('destination').value;
-            if(!res || !dest) return alert("Please enter Resident and Destination");
-            
-            document.getElementById('setup-section').style.display = 'none';
-            document.getElementById('active-trip').style.display = 'block';
-            // Logic to start GPS tracking goes here...
-        }
+<script>
+    let currentResident = "";
+    let logs = JSON.parse(localStorage.getItem('shiftLogs')) || [];
 
-        function arriveAtStop() {
-            // Logic to save miles for this leg...
-            document.getElementById('trip-status').innerText = "Arrived!";
-            document.getElementById('arriveBtn').style.display = 'none';
-            document.getElementById('nextBtn').style.display = 'inline-block';
-            document.getElementById('returnBtn').style.display = 'inline-block';
+    function updateLogDisplay() {
+        const logDiv = document.getElementById('log-entries');
+        if (logs.length === 0) {
+            logDiv.innerHTML = "<span style='color: #64748b'>Ready for next shift...</span>";
+            return;
         }
+        let text = "--- SHIFT MILEAGE REPORT ---\n";
+        logs.forEach(entry => {
+            text += `RESIDENT: ${entry.res}\nSTOP: ${entry.dest}\n------------------------\n`;
+        });
+        logDiv.innerText = text;
+    }
 
-        function startNextLeg() {
-            const newDest = prompt("Where is the next stop?");
-            if(newDest) {
-                document.getElementById('trip-status').innerText = "Driving to " + newDest + "...";
-                document.getElementById('nextBtn').style.display = 'none';
-                document.getElementById('returnBtn').style.display = 'none';
-                document.getElementById('arriveBtn').style.display = 'inline-block';
-            }
-        }
+    function startJourney() {
+        currentResident = document.getElementById('residentName').value;
+        const dest = document.getElementById('destination').value;
+        if(!currentResident || !dest) return alert("Please enter details");
+
+        document.getElementById('setup-section').style.display = 'none';
+        document.getElementById('active-trip').style.display = 'block';
+        document.getElementById('trip-status').innerText = `📍 Heading to: ${dest}`;
         
-        // ... rest of your existing return and copy functions
-    </script>
+        logs.push({ res: currentResident, dest: dest });
+        localStorage.setItem('shiftLogs', JSON.stringify(logs));
+        updateLogDisplay();
+    }
+
+    function arriveAtStop() {
+        document.getElementById('trip-status').innerText = "✅ Destination Reached";
+        document.getElementById('arriveBtn').style.display = 'none';
+        document.getElementById('post-arrival-actions').style.display = 'block';
+    }
+
+    function startNextLeg() {
+        const nextDest = prompt("Enter next destination:");
+        if (!nextDest) return;
+        
+        logs.push({ res: currentResident, dest: nextDest });
+        localStorage.setItem('shiftLogs', JSON.stringify(logs));
+        updateLogDisplay();
+
+        document.getElementById('trip-status').innerText = `📍 Heading to: ${nextDest}`;
+        document.getElementById('post-arrival-actions').style.display = 'none';
+        document.getElementById('arriveBtn').style.display = 'block';
+    }
+
+    function returnToBase() {
+        logs.push({ res: currentResident, dest: "Returned to Base" });
+        localStorage.setItem('shiftLogs', JSON.stringify(logs));
+        updateLogDisplay();
+
+        document.getElementById('setup-section').style.display = 'block';
+        document.getElementById('active-trip').style.display = 'none';
+        document.getElementById('post-arrival-actions').style.display = 'none';
+        document.getElementById('arriveBtn').style.display = 'block';
+        document.getElementById('destination').value = "";
+    }
+
+    function copyReport() {
+        const text = document.getElementById('log-entries').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Copied! Paste it into your message now.");
+        });
+    }
+
+    function clearLogs() {
+        if(confirm("Clear everything?")) {
+            logs = [];
+            localStorage.removeItem('shiftLogs');
+            updateLogDisplay();
+        }
+    }
+
+    updateLogDisplay();
+</script>
 </body>
+</html>
