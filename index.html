@@ -8,42 +8,142 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Twyford Tracker">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Twyford%20Care%20Mileage%20Tracker%22,%22short_name%22:%22Twyford%20Tracker%22,%22display%22:%22standalone%22,%22start_url%22:%22/%22}">
 
     <style>
-        :root { --bg: #000000; --card: #161b22; --primary: #2f81f7; --success: #238636; --text: #c9d1d9; --accent: #79c0ff; --warning: #d29922; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; }
+        :root { 
+            --bg: #f0f4f8; 
+            --card: #ffffff; 
+            --primary: #0070f3; 
+            --success: #27ae60; 
+            --text: #334155; 
+            --label: #64748b;
+            --accent: #7c3aed; 
+            --warning: #f59e0b;
+            --border: #e2e8f0;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; padding: 15px; 
+            display: flex; justify-content: center; 
+        }
+
         #app { width: 100%; max-width: 420px; }
-        #disclaimer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; display: flex; align-items: center; padding: 30px; box-sizing: border-box; }
-        .card { background: var(--card); padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #30363d; }
-        h1 { text-align: center; color: var(--accent); font-size: 18px; margin: 10px 0; letter-spacing: 0.5px; text-transform: uppercase; }
-        label { font-size: 11px; font-weight: bold; color: #8b949e; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        input { width: 100%; padding: 14px; margin: 8px 0; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; color: white; font-size: 16px; box-sizing: border-box; }
+
+        #disclaimer-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg); z-index: 1000; 
+            display: flex; align-items: center; padding: 30px; box-sizing: border-box; 
+        }
+
+        .card { 
+            background: var(--card); 
+            padding: 24px; 
+            border-radius: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        h1 { 
+            text-align: center; 
+            color: var(--primary); 
+            font-size: 20px; 
+            margin: 15px 0; 
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        label { 
+            font-size: 12px; 
+            font-weight: 700; 
+            color: var(--label); 
+            text-transform: uppercase; 
+            display: block; 
+            margin-bottom: 8px; 
+        }
+
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 8px 0 16px 0; 
+            border-radius: 12px; 
+            border: 2px solid var(--border); 
+            background: #f8fafc; 
+            color: var(--text); 
+            font-size: 16px; 
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: var(--primary); }
         
         .preset-tag { 
-            display: inline-flex; align-items: center; background: #21262d; 
-            padding: 6px 12px; border-radius: 20px; font-size: 12px; 
-            margin: 0 5px 8px 0; border: 1px solid #30363d; color: var(--accent); 
+            display: inline-flex; align-items: center; 
+            background: #edf2f7; 
+            padding: 8px 14px; 
+            border-radius: 25px; 
+            font-size: 13px; 
+            margin: 0 6px 10px 0; 
+            border: 1px solid var(--border); 
+            color: var(--primary); 
+            font-weight: 600;
+            cursor: pointer; 
         }
-        .del-btn { margin-left: 8px; color: #f85149; font-weight: bold; cursor: pointer; padding: 2px 5px; }
+        .del-btn { margin-left: 10px; color: #ef4444; font-size: 16px; cursor: pointer; }
         
-        button { width: 100%; padding: 18px; border-radius: 12px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+        button { 
+            width: 100%; 
+            padding: 18px; 
+            border-radius: 14px; 
+            border: none; 
+            font-size: 16px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: transform 0.1s, opacity 0.2s; 
+            margin-bottom: 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        button:active { transform: scale(0.98); }
+
         .btn-start { background: var(--primary); color: white; }
         .btn-stop { background: var(--success); color: white; }
-        .btn-next { background: #8957e5; color: white; }
-        .btn-home { background: #30363d; color: white; }
+        .btn-next { background: var(--accent); color: white; }
+        .btn-home { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
         .btn-copy { background: var(--warning); color: white; }
-        #log-output { background: #0d1117; padding: 15px; border-radius: 10px; font-family: monospace; color: #39d353; border: 1px solid #30363d; font-size: 13px; white-space: pre-wrap; }
+
+        #log-output { 
+            background: #f8fafc; 
+            padding: 15px; 
+            border-radius: 12px; 
+            font-family: 'Courier New', monospace; 
+            color: var(--text); 
+            border: 1px solid var(--border); 
+            font-size: 13px; 
+            white-space: pre-wrap; 
+            line-height: 1.5;
+        }
+
         .hidden { display: none; }
+
+        .live-indicator {
+            text-align: center; font-size: 12px; color: #ef4444; 
+            margin-bottom: 10px; font-weight: 800; 
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div id="disclaimer-overlay">
-    <div>
-        <h2 style="color:var(--accent); font-size: 24px;">Hi Guys! 👋</h2>
-        <p style="color: #c9d1d9; line-height: 1.6; font-size: 16px;">
+    <div class="card">
+        <h2 style="color:var(--primary); font-size: 26px; margin-top:0;">Hi Guys! 👋</h2>
+        <p style="line-height: 1.6; font-size: 16px; color: var(--text);">
             I made this <b>Twyford Care Mileage Tracker</b> to make our life easier.
             <br><br>
             Just start a trip when we leave. If we have multiple stops, click <b>"Add Stop"</b> along the way.
@@ -55,7 +155,7 @@
 </div>
 
 <div id="app">
-    <h1>Twyford Care Mileage Tracker</h1>
+    <h1>Twyford Care</h1>
 
     <div id="view-setup" class="card">
         <label>Who are you supporting?</label>
@@ -64,14 +164,14 @@
         
         <label>Where are we off to?</label>
         <div id="dest-presets"></div>
-        <input type="text" id="input-dest" placeholder="Destination">
+        <input type="text" id="input-dest" placeholder="e.g. Tesco, Park, Base">
         
         <button class="btn-start" onclick="startTracking()">START TRIP</button>
     </div>
 
     <div id="view-active" class="card hidden">
-        <div style="text-align:center; font-size:12px; color:var(--warning); margin-bottom:10px; font-weight:bold;">📍 TRACKING LIVE...</div>
-        <div style="text-align:center; font-size:42px; font-weight:800; margin:10px 0; color:white;" id="live-miles">0.00 mi</div>
+        <div class="live-indicator">● LIVE TRACKING ACTIVE</div>
+        <div style="text-align:center; font-size:54px; font-weight:900; margin:15px 0; color:var(--text);" id="live-miles">0.00 <span style="font-size:20px; color:var(--label);">mi</span></div>
         <button class="btn-stop" id="main-stop-btn" onclick="arrive()">I'VE ARRIVED</button>
         
         <div id="post-arrival-options" class="hidden">
@@ -81,10 +181,10 @@
     </div>
 
     <div class="card">
-        <label>Today's Mileage Report</label>
+        <label>Daily Mileage Report</label>
         <div id="log-output">No trips logged today.</div>
         <button class="btn-copy" onclick="copyLogs()">COPY REPORT</button>
-        <button style="background:transparent; color:#f85149; font-size:11px; text-decoration:underline; margin-top:10px;" onclick="resetAll()">Clear Everything</button>
+        <button style="background:transparent; color:#94a3b8; font-size:11px; text-decoration:underline; margin-top:10px; box-shadow:none;" onclick="resetAll()">Clear Shift Data</button>
     </div>
 </div>
 
@@ -99,9 +199,14 @@
         
         resDiv.innerHTML = presets.res.map((r, i) => `
             <span class="preset-tag" onclick="set('input-res','${r}')">${r} 
+                <span class="del-btn" onclick="deletePreset(event, 'res', ${index})">×</span>
+            </span>`).join(''); // Wait, fixed a tiny variable name bug below:
+            
+        resDiv.innerHTML = presets.res.map((r, i) => `
+            <span class="preset-tag" onclick="set('input-res','${r}')">${r} 
                 <span class="del-btn" onclick="deletePreset(event, 'res', ${i})">×</span>
             </span>`).join('');
-            
+
         destDiv.innerHTML = presets.dest.map((d, i) => `
             <span class="preset-tag" onclick="set('input-dest','${d}')">${d} 
                 <span class="del-btn" onclick="deletePreset(event, 'dest', ${i})">×</span>
@@ -149,7 +254,7 @@
             
             watchId = navigator.geolocation.watchPosition(pos => {
                 currentMiles = getDist(startPos, pos.coords);
-                document.getElementById('live-miles').innerText = currentMiles.toFixed(2) + " mi";
+                document.getElementById('live-miles').innerHTML = `${currentMiles.toFixed(2)} <span style="font-size:20px; color:var(--label);">mi</span>`;
             }, null, {enableHighAccuracy:true});
         }, () => alert("GPS is needed to track miles!"));
     }
@@ -184,7 +289,7 @@
             alert("Report copied! Ready to paste into your message.");
         }); 
     }
-    function resetAll() { if(confirm("This clears all your trips. Start a new shift?")) { localStorage.removeItem('st_logs'); location.reload(); } }
+    function resetAll() { if(confirm("This clears today's trips. Start a new shift?")) { localStorage.removeItem('st_logs'); location.reload(); } }
     render();
 </script>
 </body>
