@@ -3,40 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mileage Assistant: Auto-Remind</title>
+    <title>Mileage Assistant: Pro Edition</title>
     <style>
         :root { --bg: #0f172a; --card: #1e293b; --primary: #6366f1; --success: #22c55e; --danger: #ef4444; --warning: #f59e0b; --text: #f8fafc; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; margin: 0; padding: 15px; }
         .container { width: 100%; max-width: 450px; padding-bottom: 140px; }
-        .main-card { background: var(--card); border-radius: 24px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
+        .main-card { background: var(--card); border-radius: 24px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
         
-        /* ALERT BANNER */
         .reminder-banner { background: var(--warning); color: black; padding: 15px; border-radius: 12px; font-weight: 800; font-size: 14px; margin-bottom: 15px; text-align: center; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); background: #fff; } 100% { transform: scale(1); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
 
-        .input-row { margin-bottom: 12px; }
-        label { display: block; font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 800; margin-bottom: 4px; }
-        input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 10px; color: white; font-size: 16px; outline: none; }
+        .input-row { margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 15px; }
+        label { display: block; font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 800; margin-bottom: 8px; }
+        input { width: 100%; background: transparent; border: none; color: white; font-size: 16px; outline: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
         
-        .tag { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; padding: 8px 14px; border-radius: 10px; font-size: 12px; cursor: pointer; display: inline-block; margin: 2px; }
+        /* SCROLLABLE SAVED LISTS */
+        .chip-container { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0; margin-bottom: 5px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .chip { background: rgba(99, 102, 241, 0.2); border: 1px solid var(--primary); color: #c7d2fe; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+        .chip.loc { border-color: var(--success); color: #86efac; background: rgba(34, 197, 94, 0.1); }
         
-        .btn { width: 100%; padding: 20px; border-radius: 16px; border: none; font-size: 18px; font-weight: 800; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .add-row { display: flex; gap: 5px; margin-top: 8px; }
+        .add-row input { font-size: 12px; border: 1px solid rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 8px; }
+        .mini-btn { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 10px; cursor: pointer; }
+
+        .btn { width: 100%; padding: 20px; border-radius: 16px; border: none; font-size: 18px; font-weight: 800; cursor: pointer; margin-top: 10px; }
         #startBtn { background: var(--primary); color: white; }
         #stopBtn { background: var(--danger); color: white; display: none; }
         #returnBtn { background: var(--success); color: white; display: none; }
 
         .trip-item { background: #1e293b; border-radius: 15px; padding: 15px; margin-bottom: 10px; border-left: 5px solid var(--success); }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; padding: 20px; border-top: 2px solid var(--primary); text-align: center; z-index: 100; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="main-card">
-        <div id="banner" class="reminder-banner">⚠️ APP READY: ENTER NAMES</div>
+        <div id="banner" class="reminder-banner">👋 READY: SELECT RESIDENT</div>
         
         <div class="input-row">
             <label>Resident(s)</label>
-            <input type="text" id="resName" placeholder="Who is with you?">
+            <div id="resList" class="chip-container"></div>
+            <input type="text" id="resName" placeholder="Select or type name...">
+            <div class="add-row">
+                <input type="text" id="newResInput" placeholder="Save New Resident (Initials only for privacy)">
+                <button class="mini-btn" onclick="saveData('res')">SAVE</button>
+            </div>
         </div>
         
         <div class="input-row">
@@ -46,9 +58,12 @@
 
         <div class="input-row">
             <label>To (Destination)</label>
-            <div id="quickTags" style="margin-bottom:10px;"></div>
+            <div id="locList" class="chip-container"></div>
             <input type="text" id="toLoc" placeholder="Where to?">
-            <button onclick="saveNewPlace()" style="margin-top:5px; background:none; color:var(--primary); border:none; font-size:11px; cursor:pointer;">+ Save this location</button>
+            <div class="add-row">
+                <input type="text" id="newLocInput" placeholder="Save New Location">
+                <button class="mini-btn" onclick="saveData('loc')">SAVE</button>
+            </div>
         </div>
 
         <button id="startBtn" class="btn" onclick="begin()">▶ START JOURNEY</button>
@@ -56,44 +71,61 @@
         <button id="returnBtn" class="btn" onclick="prepareReturn()">🔄 START RETURN TRIP</button>
     </div>
 
-    <div id="tripList" style="margin-top:30px;"></div>
+    <div id="tripList" style="margin-top:30px; padding-bottom: 50px;"></div>
 </div>
 
-<div style="position:fixed; bottom:0; left:0; right:0; background:#1e293b; padding:20px; border-top:2px solid var(--primary); text-align:center;">
+<div class="footer">
     <button class="btn" style="background:var(--success); color:white; margin:0; padding:12px;" onclick="copyFullReport()">COPY ALL LOGS 📋</button>
+    <div style="font-size: 11px; margin-top: 8px; color: #64748b;">All data saved locally on this device only.</div>
 </div>
 
 <script>
     let startCoords = null, startTime = null, trips = [], totalMiles = 0;
-    let savedPlaces = JSON.parse(localStorage.getItem('myPlaces')) || ['Supermarket', 'GP Surgery', 'Park', 'House'];
+    
+    // Load from LocalStorage
+    let savedRes = JSON.parse(localStorage.getItem('myResidents')) || [];
+    let savedLocs = JSON.parse(localStorage.getItem('myPlaces')) || ['Supermarket', 'GP Surgery', 'Park', 'House'];
 
-    // Audio Reminders
-    const speech = window.speechSynthesis;
-    function speak(text) {
-        const msg = new SpeechSynthesisUtterance(text);
-        speech.speak(msg);
-    }
+    function renderChips() {
+        const rList = document.getElementById('resList');
+        rList.innerHTML = "";
+        savedRes.forEach(r => {
+            const c = document.createElement('div'); c.className = 'chip'; c.innerText = r;
+            c.onclick = () => { document.getElementById('resName').value = r; alertRemind("Resident selected: " + r); };
+            rList.appendChild(c);
+        });
 
-    function renderPlaces() {
-        const container = document.getElementById('quickTags');
-        container.innerHTML = "";
-        savedPlaces.forEach(p => {
-            const d = document.createElement('div'); d.className = 'tag'; d.innerText = p;
-            d.onclick = () => { document.getElementById('toLoc').value = p; alertRemind("Destination set. Click Start Journey."); };
-            container.appendChild(d);
+        const lList = document.getElementById('locList');
+        lList.innerHTML = "";
+        savedLocs.forEach(l => {
+            const c = document.createElement('div'); c.className = 'chip loc'; c.innerText = l;
+            c.onclick = () => { document.getElementById('toLoc').value = l; alertRemind("Destination set: " + l); };
+            lList.appendChild(c);
         });
     }
 
+    function saveData(type) {
+        if(type === 'res') {
+            const val = document.getElementById('newResInput').value.trim();
+            if(val) { savedRes.push(val); localStorage.setItem('myResidents', JSON.stringify(savedRes)); document.getElementById('newResInput').value = ""; }
+        } else {
+            const val = document.getElementById('newLocInput').value.trim();
+            if(val) { savedLocs.push(val); localStorage.setItem('myPlaces', JSON.stringify(savedLocs)); document.getElementById('newLocInput').value = ""; }
+        }
+        renderChips();
+    }
+
+    const speech = window.speechSynthesis;
+    function speak(text) { const msg = new SpeechSynthesisUtterance(text); speech.speak(msg); }
+
     function alertRemind(msg, color="#f59e0b") {
         const b = document.getElementById('banner');
-        b.innerText = msg;
-        b.style.background = color;
-        // Optional: play a "ding" sound if you have one
+        b.innerText = msg; b.style.background = color;
     }
 
     function begin() {
         if (!document.getElementById('resName').value || !document.getElementById('toLoc').value) {
-            speak("Please enter resident name and destination.");
+            speak("Please select a resident and destination.");
             return;
         }
         navigator.geolocation.getCurrentPosition((pos) => {
@@ -101,8 +133,8 @@
             startTime = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             document.getElementById('startBtn').style.display = "none";
             document.getElementById('stopBtn').style.display = "block";
-            alertRemind("🚨 DRIVING: DON'T CLOSE APP", "#ef4444");
-            speak("Journey started. Drive safely.");
+            alertRemind("🚨 DRIVING: TRACKING ACTIVE", "#ef4444");
+            speak("Journey started.");
         }, (err) => alert("GPS Error"), {enableHighAccuracy:true});
     }
 
@@ -115,13 +147,12 @@
                 miles: miles.toFixed(2),
                 time: startTime + " - " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
             });
-            totalMiles += miles;
+            totalMiles += miles.toFixed(2);
             updateUI();
-            
             document.getElementById('stopBtn').style.display = "none";
             document.getElementById('returnBtn').style.display = "block";
-            alertRemind("⌛ AT DESTINATION: START RETURN TRIP LATER", "#22c55e");
-            speak("Journey logged. Don't forget to start the return trip when you leave.");
+            alertRemind("⌛ ACTIVITY IN PROGRESS", "#22c55e");
+            speak("Arrival logged. I will remind you to start the return trip later.");
         });
     }
 
@@ -130,22 +161,11 @@
         const oldFrom = document.getElementById('fromLoc').value;
         document.getElementById('fromLoc').value = oldTo;
         document.getElementById('toLoc').value = oldFrom;
-        
         document.getElementById('returnBtn').style.display = "none";
         document.getElementById('startBtn').style.display = "block";
         document.getElementById('startBtn').innerText = "▶ START RETURN JOURNEY";
         alertRemind("🔄 READY FOR RETURN", "#6366f1");
-        speak("Ready for return. Click start when you begin driving.");
-    }
-
-    function saveNewPlace() {
-        const val = document.getElementById('toLoc').value;
-        if(val && !savedPlaces.includes(val)) {
-            savedPlaces.push(val);
-            localStorage.setItem('myPlaces', JSON.stringify(savedPlaces));
-            renderPlaces();
-            alert("Location saved!");
-        }
+        speak("Ready for the return leg. Tap start when you begin driving.");
     }
 
     function calcDist(lat1, lon1, lat2, lon2) {
@@ -169,10 +189,10 @@
         let r = "SHIFT LOG:\n";
         trips.forEach(t => r += `${t.res}: ${t.desc} (${t.miles} mi)\n`);
         navigator.clipboard.writeText(r);
-        alert("Copied!");
+        alert("Report Copied to clipboard!");
     }
 
-    renderPlaces();
+    renderChips();
 </script>
 </body>
 </html>
