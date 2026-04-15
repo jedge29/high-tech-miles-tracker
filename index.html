@@ -13,143 +13,45 @@
 
     <style>
         :root { 
-            --bg: #f0f4f8; 
-            --card: #ffffff; 
-            --primary: #0070f3; 
-            --success: #27ae60; 
-            --text: #334155; 
-            --label: #64748b;
-            --accent: #7c3aed; 
-            --warning: #f59e0b;
-            --border: #e2e8f0;
+            --bg: #f0f4f8; --card: #ffffff; --primary: #0070f3; 
+            --success: #27ae60; --text: #334155; --label: #64748b;
+            --accent: #7c3aed; --warning: #f59e0b; --border: #e2e8f0;
         }
         
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; padding: 15px; 
-            display: flex; justify-content: center; 
-        }
-
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; }
         #app { width: 100%; max-width: 420px; }
-
-        #disclaimer-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: var(--bg); z-index: 1000; 
-            display: flex; align-items: center; padding: 30px; box-sizing: border-box; 
-        }
-
-        .card { 
-            background: var(--card); 
-            padding: 24px; 
-            border-radius: 20px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            border: 1px solid var(--border);
-        }
-
-        h1 { 
-            text-align: center; 
-            color: var(--primary); 
-            font-size: 20px; 
-            margin: 15px 0; 
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        label { 
-            font-size: 12px; 
-            font-weight: 700; 
-            color: var(--label); 
-            text-transform: uppercase; 
-            display: block; 
-            margin-bottom: 8px; 
-        }
-
-        input { 
-            width: 100%; 
-            padding: 14px; 
-            margin: 8px 0 16px 0; 
-            border-radius: 12px; 
-            border: 2px solid var(--border); 
-            background: #f8fafc; 
-            color: var(--text); 
-            font-size: 16px; 
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        input:focus { border-color: var(--primary); }
+        #disclaimer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; display: flex; align-items: center; padding: 20px; box-sizing: border-box; }
+        .card { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        h1 { text-align: center; color: var(--primary); font-size: 18px; margin: 10px 0; font-weight: 800; text-transform: uppercase; }
+        label { font-size: 11px; font-weight: 700; color: var(--label); text-transform: uppercase; display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 14px; margin: 5px 0 15px 0; border-radius: 12px; border: 2px solid var(--border); background: #f8fafc; color: var(--text); font-size: 16px; box-sizing: border-box; outline: none; }
         
         .preset-tag { 
-            display: inline-flex; align-items: center; 
-            background: #edf2f7; 
-            padding: 8px 14px; 
-            border-radius: 25px; 
-            font-size: 13px; 
-            margin: 0 6px 10px 0; 
-            border: 1px solid var(--border); 
-            color: var(--primary); 
-            font-weight: 600;
-            cursor: pointer; 
+            display: inline-flex; align-items: center; background: #edf2f7; 
+            padding: 6px 12px; border-radius: 25px; font-size: 13px; 
+            margin: 0 5px 8px 0; border: 1px solid var(--border); color: var(--primary); font-weight: 600; cursor: pointer; 
         }
-        .del-btn { margin-left: 10px; color: #ef4444; font-size: 16px; cursor: pointer; }
+        .del-btn { margin-left: 8px; color: #ef4444; font-size: 18px; }
         
-        button { 
-            width: 100%; 
-            padding: 18px; 
-            border-radius: 14px; 
-            border: none; 
-            font-size: 16px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: transform 0.1s, opacity 0.2s; 
-            margin-bottom: 12px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        button:active { transform: scale(0.98); }
-
+        button { width: 100%; padding: 18px; border-radius: 14px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
         .btn-start { background: var(--primary); color: white; }
         .btn-stop { background: var(--success); color: white; }
         .btn-next { background: var(--accent); color: white; }
         .btn-home { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
         .btn-copy { background: var(--warning); color: white; }
 
-        #log-output { 
-            background: #f8fafc; 
-            padding: 15px; 
-            border-radius: 12px; 
-            font-family: 'Courier New', monospace; 
-            color: var(--text); 
-            border: 1px solid var(--border); 
-            font-size: 13px; 
-            white-space: pre-wrap; 
-            line-height: 1.5;
-        }
-
+        #log-output { background: #f8fafc; padding: 15px; border-radius: 12px; font-family: monospace; border: 1px solid var(--border); font-size: 13px; white-space: pre-wrap; line-height: 1.5; }
         .hidden { display: none; }
-
-        .live-indicator {
-            text-align: center; font-size: 12px; color: #ef4444; 
-            margin-bottom: 10px; font-weight: 800; 
-            animation: blink 1.5s infinite;
-        }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .live-indicator { text-align: center; font-size: 11px; color: #ef4444; font-weight: 800; margin-bottom: 10px; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
     </style>
 </head>
 <body>
 
 <div id="disclaimer-overlay">
     <div class="card">
-        <h2 style="color:var(--primary); font-size: 26px; margin-top:0;">Hi Guys! 👋</h2>
-        <p style="line-height: 1.6; font-size: 16px; color: var(--text);">
-            I made this <b>Twyford Care Mileage Tracker</b> to make our life easier.
-            <br><br>
-            Just start a trip when we leave. If we have multiple stops, click <b>"Add Stop"</b> along the way.
-            <br><br>
-            At the end of your shift, click <b>"Copy Report"</b> and paste it into your message. Simple!
-        </p>
+        <h2 style="color:var(--primary); margin-top:0;">Hi Guys! 👋</h2>
+        <p>I made this <b>Twyford Care Mileage Tracker</b> to make our life easier. Just start a trip when we leave, and at the end of the shift, <b>Copy Report</b> to send your miles over.</p>
         <button class="btn-start" onclick="document.getElementById('disclaimer-overlay').style.display='none'">START TRACKER</button>
     </div>
 </div>
@@ -160,18 +62,18 @@
     <div id="view-setup" class="card">
         <label>Who are you supporting?</label>
         <div id="res-presets"></div>
-        <input type="text" id="input-res" placeholder="Staff or Resident Name">
+        <input type="text" id="input-res" placeholder="Name">
         
         <label>Where are we off to?</label>
         <div id="dest-presets"></div>
-        <input type="text" id="input-dest" placeholder="e.g. Tesco, Park, Base">
+        <input type="text" id="input-dest" placeholder="Destination">
         
         <button class="btn-start" onclick="startTracking()">START TRIP</button>
     </div>
 
     <div id="view-active" class="card hidden">
         <div class="live-indicator">● LIVE TRACKING ACTIVE</div>
-        <div style="text-align:center; font-size:54px; font-weight:900; margin:15px 0; color:var(--text);" id="live-miles">0.00 <span style="font-size:20px; color:var(--label);">mi</span></div>
+        <div style="text-align:center; font-size:48px; font-weight:900; margin:10px 0;" id="live-miles">0.00 mi</div>
         <button class="btn-stop" id="main-stop-btn" onclick="arrive()">I'VE ARRIVED</button>
         
         <div id="post-arrival-options" class="hidden">
@@ -181,10 +83,10 @@
     </div>
 
     <div class="card">
-        <label>Daily Mileage Report</label>
+        <label>Daily Report</label>
         <div id="log-output">No trips logged today.</div>
         <button class="btn-copy" onclick="copyLogs()">COPY REPORT</button>
-        <button style="background:transparent; color:#94a3b8; font-size:11px; text-decoration:underline; margin-top:10px; box-shadow:none;" onclick="resetAll()">Clear Shift Data</button>
+        <button style="background:transparent; color:#94a3b8; font-size:11px; text-decoration:underline;" onclick="resetAll()">Clear Shift Data</button>
     </div>
 </div>
 
@@ -199,11 +101,6 @@
         
         resDiv.innerHTML = presets.res.map((r, i) => `
             <span class="preset-tag" onclick="set('input-res','${r}')">${r} 
-                <span class="del-btn" onclick="deletePreset(event, 'res', ${index})">×</span>
-            </span>`).join(''); // Wait, fixed a tiny variable name bug below:
-            
-        resDiv.innerHTML = presets.res.map((r, i) => `
-            <span class="preset-tag" onclick="set('input-res','${r}')">${r} 
                 <span class="del-btn" onclick="deletePreset(event, 'res', ${i})">×</span>
             </span>`).join('');
 
@@ -213,8 +110,12 @@
             </span>`).join('');
 
         let text = logs.length ? "--- TWYFORD CARE REPORT ---\n" : "No trips logged today.";
-        let total = 0; logs.forEach(l => { text += `• ${l.res}: ${l.dest} (${l.miles} mi)\n`; total += parseFloat(l.miles); });
-        if(logs.length) text += `\nTOTAL MILES FOR DAY: ${total.toFixed(2)}`;
+        let total = 0; 
+        logs.forEach(l => { 
+            text += `• ${l.res}: ${l.dest} (${l.miles} mi)\n`; 
+            total += parseFloat(l.miles); 
+        });
+        if(logs.length) text += `\nTOTAL MILES: ${total.toFixed(2)}`;
         document.getElementById('log-output').innerText = text;
     }
 
@@ -254,14 +155,18 @@
             
             watchId = navigator.geolocation.watchPosition(pos => {
                 currentMiles = getDist(startPos, pos.coords);
-                document.getElementById('live-miles').innerHTML = `${currentMiles.toFixed(2)} <span style="font-size:20px; color:var(--label);">mi</span>`;
+                document.getElementById('live-miles').innerText = currentMiles.toFixed(2) + " mi";
             }, null, {enableHighAccuracy:true});
-        }, () => alert("GPS is needed to track miles!"));
+        }, () => alert("GPS is needed!"));
     }
 
     function arrive() {
         navigator.geolocation.clearWatch(watchId);
-        logs.push({ res: document.getElementById('input-res').value, dest: document.getElementById('input-dest').value, miles: currentMiles.toFixed(2) });
+        logs.push({ 
+            res: document.getElementById('input-res').value, 
+            dest: document.getElementById('input-dest').value, 
+            miles: currentMiles.toFixed(2) 
+        });
         localStorage.setItem('st_logs', JSON.stringify(logs));
         document.getElementById('main-stop-btn').classList.add('hidden');
         document.getElementById('post-arrival-options').classList.remove('hidden');
@@ -269,7 +174,7 @@
     }
 
     function prepareNextLeg() {
-        const nextStop = prompt("Where is the next stop?", "");
+        const nextStop = prompt("Where next?", "");
         if (nextStop) {
             document.getElementById('input-dest').value = nextStop;
             startTracking();
@@ -284,12 +189,18 @@
     }
 
     function copyLogs() { 
-        const logContent = document.getElementById('log-output').innerText;
-        navigator.clipboard.writeText(logContent).then(() => {
-            alert("Report copied! Ready to paste into your message.");
-        }); 
+        navigator.clipboard.writeText(document.getElementById('log-output').innerText);
+        alert("Report copied!");
     }
-    function resetAll() { if(confirm("This clears today's trips. Start a new shift?")) { localStorage.removeItem('st_logs'); location.reload(); } }
+    
+    function resetAll() { 
+        if(confirm("Clear today's trips?")) { 
+            localStorage.removeItem('st_logs'); 
+            logs = [];
+            render(); 
+        } 
+    }
+    
     render();
 </script>
 </body>
